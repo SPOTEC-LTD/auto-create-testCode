@@ -1,0 +1,23 @@
+import allure
+from utils.restClient import RequestClient
+from {{casePath}} import dataCases
+
+@allure.severity(allure.severity_level.{{severityLevel}})
+@allure.feature("{{feature}}")
+class {{funcNameSpace}}PageAPI:
+    def test{{funcNameSpace}}Case(self):
+
+        for caseItem in dataCases["casesList"]:
+            res = RequestClient.request(
+                method=dataCases["method"],
+                path=dataCases["path"],
+                pathParams=caseItem['pathParams']
+                data=caseItem["data"],
+            )
+
+            exceptResult = caseItem["expected"]
+            resData = res["header"]
+            if "traceId" in resData:
+                del resData["traceId"]
+
+            assert resData == exceptResult

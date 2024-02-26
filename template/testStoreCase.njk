@@ -1,0 +1,28 @@
+import allure
+import pytest
+from utils.restClient import RequestClient
+from utils.assertUtils import AssertUtils
+from {{casePath}} import dataCases
+
+@allure.severity(allure.severity_level.{{severityLevel}})
+@allure.feature("{{feature}}")
+class {{funcNameSpace}}PageAPI:
+    {% for caseItem in casesList -%}
+    {%- if caseItem.runPro != "true" %}
+    @pytest.mark.usefixtures("run_test")
+    {%- endif %}
+    @allure.story("{{caseItem.title}}")
+    def test{{funcNameSpace}}Case{{loop.index}}(self):
+        res = RequestClient.{{method}}(
+            path="{{path}}",
+            {%- if caseItem.pathParams %}
+            pathParams=dataCases["casesList"][{{loop.index-1}}]['pathParams'],
+            {%- endif %}
+            data=dataCases["casesList"][{{loop.index-1}}]['data'],
+        )
+        exceptResult = dataCases['casesList'][{{loop.index-1}}]['expected']
+        resData = res["header"]
+        del resData["traceId"]
+
+        assert resData == exceptResult
+    {%endfor%}

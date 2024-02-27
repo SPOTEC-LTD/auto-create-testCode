@@ -1,28 +1,28 @@
 import allure
 import pytest
 from utils.restClient import RequestClient
-from utils.assertUtils import AssertUtils
 from {{casePath}} import dataCases
 
-@allure.severity(allure.severity_level.{{severityLevel}})
-@allure.feature("{{feature}}")
+@allure.severity(getattr(allure.severity_level, dataCases['severityLevel']))
+@allure.feature(dataCases['feature'])
 class {{funcNameSpace}}PageAPI:
     {% for caseItem in casesList -%}
-    {%- if caseItem.runPro != "true" %}
-    @pytest.mark.usefixtures("run_test")
+    {%- if caseItem.runPro == "true" %}
+    @pytest.mark.runALL
     {%- endif %}
     @allure.story("{{caseItem.title}}")
     def test{{funcNameSpace}}Case{{loop.index}}(self):
-        res = RequestClient.{{method}}(
-            path="{{path}}",
+        res = RequestClient.request(
+            method=dataCases['method'],
+            path=dataCases['path'],
             {%- if caseItem.pathParams %}
             pathParams=dataCases["casesList"][{{loop.index-1}}]['pathParams'],
             {%- endif %}
             data=dataCases["casesList"][{{loop.index-1}}]['data'],
         )
-        exceptResult = dataCases['casesList'][{{loop.index-1}}]['expected']
+        exceptHeaderResult = dataCases['casesList'][{{loop.index-1}}]['expected']['header']
         resData = res["header"]
         del resData["traceId"]
 
-        assert resData == exceptResult
+        assert resData == exceptHeaderResult
     {%endfor%}

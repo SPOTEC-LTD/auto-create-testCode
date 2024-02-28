@@ -1,5 +1,6 @@
 import allure
 import pytest
+import pydash
 from utils.restClient import RequestClient
 from {{casePath}} import dataCases
 
@@ -20,9 +21,15 @@ class {{funcNameSpace}}PageAPI:
             {%- endif %}
             data=dataCases["casesList"][{{loop.index-1}}]['data'],
         )
-        exceptHeaderResult = dataCases['casesList'][{{loop.index-1}}]['expected']['header']
-        resData = res["header"]
-        del resData["traceId"]
 
-        assert resData == exceptHeaderResult
+        if 'header' in dataCases['casesList'][{{loop.index-1}}]['expected']:
+            exceptHeaderResult = dataCases['casesList'][{{loop.index-1}}]['expected']['header']
+            resHeaderData = res["header"]
+            del resHeaderData["traceId"]
+            assert resHeaderData == exceptHeaderResult
+
+        if 'body' in dataCases['casesList'][{{loop.index-1}}]['expected']:
+            exceptBodyResult = dataCases['casesList'][{{loop.index-1}}]['expected']['body']
+            restBoyData = pydash.pick(res["body"], pydash.keys(exceptBodyResult) )
+            assert exceptBodyResult == restBoyData
     {%endfor%}
